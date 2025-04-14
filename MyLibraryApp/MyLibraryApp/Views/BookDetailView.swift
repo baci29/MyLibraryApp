@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct BookDetailView: View {
+    @EnvironmentObject var viewModel: LibraryViewModel
     @State var book: Book
     @State private var newNote: String = ""
     @State private var notes: [String] = []
@@ -15,7 +16,7 @@ struct BookDetailView: View {
 
     var body: some View {
         Form {
-            //  Poznámky
+            // Poznámky
             Section(header: Text("Poznámky")) {
                 ForEach(notes, id: \.self) { note in
                     Text(note)
@@ -62,6 +63,7 @@ struct BookDetailView: View {
                             .foregroundColor(.yellow)
                             .onTapGesture {
                                 book.rating = star
+                                saveChanges()
                             }
                     }
                 }
@@ -79,6 +81,7 @@ struct BookDetailView: View {
             notes.append(newNote)
             newNote = ""
             book.notes = notes.joined(separator: "\n")
+            saveChanges()
         }
     }
 
@@ -92,10 +95,13 @@ struct BookDetailView: View {
             return
         }
         progress = Double(book.currentPage) / Double(book.totalPages)
+        saveChanges()
+    }
+
+    private func saveChanges() {
+        viewModel.updateBook(book) 
     }
 }
-
-
 
 struct BookDetailView_Previews: PreviewProvider {
     static var previews: some View {
@@ -112,5 +118,6 @@ struct BookDetailView_Previews: PreviewProvider {
                 totalPages: 100
             )
         )
+        .environmentObject(LibraryViewModel())
     }
 }
